@@ -22,23 +22,60 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Clean Organization of Files
+    - name: Clean and Fix Gradle Build Files
       run: |
-        mkdir -p app/src/main/java app/src/main/res/values app/gradle
+        mkdir -p app/src/main/java app/src/main/res/values
         
-        # Déplacement des fichiers de configuration à leur vraie place
+        # Rangement des fichiers
         [ -f "build.gradle.kts" ] && mv build.gradle.kts app/ || true
         [ -f "build (1).kts" ] && mv "build (1).kts" app/build.gradle.kts || true
-        [ -f "settings.gradle.kts" ] && mv settings.gradle.kts ./ || true
-        [ -f "libs.versions.toml" ] && mv libs.versions.toml gradle/ || true
-        
-        # Déplacement du code source Android
         [ -f "AndroidManifest.xml" ] && mv AndroidManifest.xml app/src/main/ || true
         mv *.kt app/src/main/java/ 2>/dev/null || true
         
         for f in strings.xml styles.xml themes.xml colors.xml *.xml; do
           [ -f "$f" ] && mv "$f" app/src/main/res/values/ || true
         done
+
+        # REMPLACEMENT PROPRE DU FICHIER BLOQUANT (Anti-erreur de plugins)
+        cat << 'EOF' > app/build.gradle.kts
+        plugins {
+            id("com.android.application")
+            id("org.jetbrains.kotlin.android")
+        }
+
+        android {
+            namespace = "com.studio.motorolavirtualcamera"
+            compileSdk = 34
+
+            defaultConfig {
+                applicationId = "com.studio.motorolavirtualcamera"
+                minSdk = 26
+                targetSdk = 34
+                versionCode = 1
+                versionName = "1.0"
+                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            }
+
+            buildTypes {
+                release {
+                    isMinifyEnabled = false
+                }
+            }
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+            }
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+
+        dependencies {
+            implementation("androidx.core:core-ktx:1.12.0")
+            implementation("androidx.appcompat:appcompat:1.6.1")
+            implementation("com.google.android.material:material:1.11.0")
+        }
+        EOF
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew || true
@@ -53,4 +90,3 @@ jobs:
         path: |
           app/build/outputs/apk/debug/*.apk
           **/build/outputs/apk/debug/*.apk
-          
