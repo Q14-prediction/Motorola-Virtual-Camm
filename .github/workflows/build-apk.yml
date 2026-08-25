@@ -22,11 +22,14 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Project Generation and Source Injection
+    - name: Clean Slate and Fresh Project Generation
       run: |
+        # 1. On nettoie tout le passé pour repartir sur une base saine
+        rm -rf app settings.gradle.kts build.gradle.kts libs.versions.toml gradle* 2>/dev/null || true
+        
         mkdir -p app/src/main/java/com/studio/motorolavirtualcamera app/src/main/res/values
         
-        # 1. Configuration settings.gradle.kts
+        # 2. Configuration settings.gradle.kts
         cat << 'EOF' > settings.gradle.kts
         pluginManagement {
             repositories {
@@ -46,7 +49,7 @@ jobs:
         include(":app")
         EOF
 
-        # 2. Configuration app/build.gradle.kts
+        # 3. Configuration app/build.gradle.kts
         cat << 'EOF' > app/build.gradle.kts
         plugins {
             id("com.android.application") version "8.2.0"
@@ -87,7 +90,7 @@ jobs:
         }
         EOF
 
-        # 3. AndroidManifest.xml
+        # 4. AndroidManifest.xml
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <?xml version="1.0" encoding="utf-8"?>
         <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -106,6 +109,40 @@ jobs:
                         <action android:name="android.intent.action.MAIN" />
                         <category android:name="android.intent.category.LAUNCHER" />
                     </intent-filter>
+                </activity>
+            </application>
+        </manifest>
+        EOF
+
+        # 5. MainActivity.kt
+        cat << 'EOF' > app/src/main/java/com/studio/motorolavirtualcamera/MainActivity.kt
+        package com.studio.motorolavirtualcamera
+
+        import android.os.Bundle
+        import androidx.appcompat.app.AppCompatActivity
+
+        class MainActivity : AppCompatActivity() {
+            override fun onCreate(savedInstanceState: Bundle?) {
+                super.onCreate(savedInstanceState)
+                setContentView(android.R.layout.activity_list_item)
+            }
+        }
+        EOF
+
+        # 6. Génération du wrapper Gradle
+        gradle wrapper --gradle-version 8.5
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/*.apk
                 </activity>
             </application>
         </manifest>
