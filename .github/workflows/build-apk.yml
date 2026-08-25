@@ -24,12 +24,12 @@ jobs:
 
     - name: Clean Slate and Fresh Project Generation
       run: |
-        # 1. On nettoie tout le passé pour repartir sur une base saine
+        # Nettoyage complet pour repartir sur une base saine
         rm -rf app settings.gradle.kts build.gradle.kts libs.versions.toml gradle* 2>/dev/null || true
         
         mkdir -p app/src/main/java/com/studio/motorolavirtualcamera app/src/main/res/values
         
-        # 2. Configuration settings.gradle.kts
+        # 1. Configuration settings.gradle.kts
         cat << 'EOF' > settings.gradle.kts
         pluginManagement {
             repositories {
@@ -49,7 +49,7 @@ jobs:
         include(":app")
         EOF
 
-        # 3. Configuration app/build.gradle.kts
+        # 2. Configuration app/build.gradle.kts
         cat << 'EOF' > app/build.gradle.kts
         plugins {
             id("com.android.application") version "8.2.0"
@@ -90,7 +90,7 @@ jobs:
         }
         EOF
 
-        # 4. AndroidManifest.xml
+        # 3. AndroidManifest.xml
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <?xml version="1.0" encoding="utf-8"?>
         <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -114,40 +114,6 @@ jobs:
         </manifest>
         EOF
 
-        # 5. MainActivity.kt
-        cat << 'EOF' > app/src/main/java/com/studio/motorolavirtualcamera/MainActivity.kt
-        package com.studio.motorolavirtualcamera
-
-        import android.os.Bundle
-        import androidx.appcompat.app.AppCompatActivity
-
-        class MainActivity : AppCompatActivity() {
-            override fun onCreate(savedInstanceState: Bundle?) {
-                super.onCreate(savedInstanceState)
-                setContentView(android.R.layout.activity_list_item)
-            }
-        }
-        EOF
-
-        # 6. Génération du wrapper Gradle
-        gradle wrapper --gradle-version 8.5
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug
-        path: app/build/outputs/apk/debug/*.apk
-                </activity>
-            </application>
-        </manifest>
-        EOF
-
         # 4. MainActivity.kt
         cat << 'EOF' > app/src/main/java/com/studio/motorolavirtualcamera/MainActivity.kt
         package com.studio.motorolavirtualcamera
@@ -163,7 +129,7 @@ jobs:
         }
         EOF
 
-        # 5. Génération automatique du wrapper Gradle pour éviter l'erreur de fichier manquant
+        # 5. Génération automatique du wrapper Gradle
         gradle wrapper --gradle-version 8.5
 
     - name: Grant execute permission for gradlew
