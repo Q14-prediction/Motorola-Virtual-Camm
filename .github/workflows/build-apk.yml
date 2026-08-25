@@ -22,21 +22,23 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Prepare Project and Fix Plugins
+    - name: Clean Organization of Files
       run: |
-        mkdir -p app/src/main/java app/src/main/res/values
+        mkdir -p app/src/main/java app/src/main/res/values app/gradle
+        
+        # Déplacement des fichiers de configuration à leur vraie place
         [ -f "build.gradle.kts" ] && mv build.gradle.kts app/ || true
         [ -f "build (1).kts" ] && mv "build (1).kts" app/build.gradle.kts || true
+        [ -f "settings.gradle.kts" ] && mv settings.gradle.kts ./ || true
+        [ -f "libs.versions.toml" ] && mv libs.versions.toml gradle/ || true
+        
+        # Déplacement du code source Android
         [ -f "AndroidManifest.xml" ] && mv AndroidManifest.xml app/src/main/ || true
-        mv *.kt app/src/main/java/ || true
+        mv *.kt app/src/main/java/ 2>/dev/null || true
+        
         for f in strings.xml styles.xml themes.xml colors.xml *.xml; do
           [ -f "$f" ] && mv "$f" app/src/main/res/values/ || true
         done
-        
-        # Ajout des dépôts indispensables pour les plugins dans le fichier gradle si absent
-        if [ -f "app/build.gradle.kts" ]; then
-          echo 'repositories { google(); mavenCentral() }' >> app/build.gradle.kts
-        fi
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew || true
@@ -51,3 +53,4 @@ jobs:
         path: |
           app/build/outputs/apk/debug/*.apk
           **/build/outputs/apk/debug/*.apk
+          
