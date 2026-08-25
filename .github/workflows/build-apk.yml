@@ -22,10 +22,10 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Restructure Project Files Properly
+    - name: Fix Directory Structure
       run: |
-        mkdir -p app/src/main/java app/src/main/res/values app/gradle
-        [ -f "libs.versions.toml" ] && mv libs.versions.toml app/gradle/ || true
+        mkdir -p app/src/main/java app/src/main/res/values gradle
+        [ -f "libs.versions.toml" ] && mv libs.versions.toml gradle/ || true
         [ -f "build.gradle.kts" ] && mv build.gradle.kts app/ || true
         [ -f "build (1).kts" ] && mv "build (1).kts" app/build.gradle.kts || true
         [ -f "AndroidManifest.xml" ] && mv AndroidManifest.xml app/src/main/ || true
