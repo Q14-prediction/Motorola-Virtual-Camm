@@ -22,9 +22,9 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Final Clean and Standard Source Injection
+    - name: Project Generation and Source Injection
       run: |
-        mkdir -p app/src/main/java/com/studio/motorolavirtualcamera app/src/main/res/values app/src/main/res/layout
+        mkdir -p app/src/main/java/com/studio/motorolavirtualcamera app/src/main/res/values
         
         # 1. Configuration settings.gradle.kts
         cat << 'EOF' > settings.gradle.kts
@@ -87,12 +87,11 @@ jobs:
         }
         EOF
 
-        # 3. AndroidManifest.xml de base
+        # 3. AndroidManifest.xml
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <?xml version="1.0" encoding="utf-8"?>
         <manifest xmlns:android="http://schemas.android.com/apk/res/android">
             <uses-permission android:name="android.permission.CAMERA" />
-            <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
             <application
                 android:allowBackup="true"
                 android:icon="@mipmap/ic_launcher"
@@ -112,7 +111,7 @@ jobs:
         </manifest>
         EOF
 
-        # 4. MainActivity.kt propre et fonctionnelle
+        # 4. MainActivity.kt
         cat << 'EOF' > app/src/main/java/com/studio/motorolavirtualcamera/MainActivity.kt
         package com.studio.motorolavirtualcamera
 
@@ -127,8 +126,11 @@ jobs:
         }
         EOF
 
+        # 5. Génération automatique du wrapper Gradle pour éviter l'erreur de fichier manquant
+        gradle wrapper --gradle-version 8.5
+
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew || true
+      run: chmod +x gradlew
 
     - name: Build Debug APK
       run: ./gradlew assembleDebug
