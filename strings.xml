@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Motorola Virtual Cam</string>
+    <string name="freeze_frame_active">Freeze Frame Actif (Keep-Alive)</string>
+    <string name="select_video">Choisir une Vidéo</string>
+    <string name="play">Lecture</string>
+    <string name="pause">Figer (Pause)</string>
+</resources>
