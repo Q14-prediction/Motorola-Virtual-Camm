@@ -22,9 +22,10 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Restructure Project Files
+    - name: Restructure Project Files Properly
       run: |
-        mkdir -p app/src/main/java app/src/main/res/values
+        mkdir -p app/src/main/java app/src/main/res/values app/gradle
+        [ -f "libs.versions.toml" ] && mv libs.versions.toml app/gradle/ || true
         [ -f "build.gradle.kts" ] && mv build.gradle.kts app/ || true
         [ -f "build (1).kts" ] && mv "build (1).kts" app/build.gradle.kts || true
         [ -f "AndroidManifest.xml" ] && mv AndroidManifest.xml app/src/main/ || true
@@ -46,4 +47,3 @@ jobs:
         path: |
           app/build/outputs/apk/debug/*.apk
           **/build/outputs/apk/debug/*.apk
-          
